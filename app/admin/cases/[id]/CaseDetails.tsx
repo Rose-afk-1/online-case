@@ -378,7 +378,6 @@ export default function CaseDetails({ params }: CaseDetailsProps) {
             <div className="flex gap-2">
               <Button
                 variant="outline"
-                className="bg-blue-600 text-white hover:bg-blue-700"
                 size="sm"
                 onClick={() => handleStatusUpdate('approved')}
                 disabled={isUpdating || caseData.status === 'approved'}
@@ -387,7 +386,6 @@ export default function CaseDetails({ params }: CaseDetailsProps) {
               </Button>
               <Button
                 variant="outline"
-                className="bg-blue-600 text-white hover:bg-blue-700"
                 size="sm"
                 onClick={() => handleStatusUpdate('rejected')}
                 disabled={isUpdating || caseData.status === 'rejected'}
@@ -396,7 +394,6 @@ export default function CaseDetails({ params }: CaseDetailsProps) {
               </Button>
               <Button
                 variant="outline"
-                className="bg-blue-600 text-white hover:bg-blue-700"
                 size="sm"
                 onClick={() => handleStatusUpdate('closed')}
                 disabled={isUpdating || caseData.status === 'closed'}
@@ -431,7 +428,7 @@ export default function CaseDetails({ params }: CaseDetailsProps) {
                   Plaintiffs
                   {editMode ? null : (
                     <Button
-                      variant="link"
+                      variant="outline"
                       size="sm"
                       className="ml-2 text-blue-600"
                       onClick={() => setEditMode(true)}
@@ -461,7 +458,7 @@ export default function CaseDetails({ params }: CaseDetailsProps) {
                   Defendants
                   {editMode ? null : (
                     <Button
-                      variant="link"
+                      variant="outline"
                       size="sm"
                       className="ml-2 text-blue-600"
                       onClick={() => setEditMode(true)}

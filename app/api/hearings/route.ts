@@ -132,10 +132,12 @@ export async function POST(req: NextRequest) {
     
     await mongoose.connect(process.env.MONGODB_URI as string);
     
-    const { caseId, date, time, location, type, notes } = await req.json();
+    const { caseId, title, date, time, duration, location, status, description, notes } = await req.json();
+    
+    console.log('Received hearing data:', { caseId, title, date, time, duration, location, status, description, notes });
     
     // Validate required fields
-    if (!caseId || !date || !time || !location || !type) {
+    if (!caseId || !title || !date || !time || !duration || !location) {
       return NextResponse.json(
         { message: 'Missing required fields' },
         { status: 400 }
@@ -162,12 +164,14 @@ export async function POST(req: NextRequest) {
     // Create hearing
     const hearing = await Hearing.create({
       caseId: new Types.ObjectId(caseId),
+      title,
       date: new Date(date),
       time,
+      duration: Number(duration),
       location,
-      type,
+      description,
+      status: status || 'scheduled',
       notes,
-      status: 'scheduled',
       createdBy: new Types.ObjectId(session.user.id),
     });
     
@@ -177,10 +181,11 @@ export async function POST(req: NextRequest) {
         hearing: {
           _id: hearing._id,
           caseId: hearing.caseId,
+          title: hearing.title,
           date: hearing.date,
           time: hearing.time,
+          duration: hearing.duration,
           location: hearing.location,
-          type: hearing.type,
           status: hearing.status
         }
       },
