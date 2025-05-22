@@ -37,7 +37,15 @@ export default function ScheduleHearingPage() {
     try {
       const response = await fetch('/api/cases');
       const data = await response.json();
-      setCases(data.cases || []);
+      
+      // Only show approved cases for scheduling hearings
+      const approvedCases = data.cases?.filter((c: any) => c.status === 'approved') || [];
+      setCases(approvedCases);
+      
+      if (approvedCases.length > 0 && !form.caseId) {
+        // Pre-select the first case to avoid empty selection
+        setForm(prev => ({ ...prev, caseId: approvedCases[0]._id }));
+      }
     } catch (err) {
       setCases([]);
     }
@@ -45,12 +53,27 @@ export default function ScheduleHearingPage() {
 
   const handleChange = (field: string, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));
+    
+    // Clear the error message when the user selects a case
+    if (field === 'caseId' && value && error === 'Please select a case') {
+      setError('');
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
     setError('');
+    
+    // Add validation for caseId
+    if (!form.caseId) {
+      setError('Please select a case');
+      setIsSaving(false);
+      return;
+    }
+    
+    console.log('Submitting form with data:', form);
+    
     try {
       const response = await fetch('/api/hearings', {
         method: 'POST',
@@ -62,7 +85,7 @@ export default function ScheduleHearingPage() {
       });
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to create hearing');
+        throw new Error(error.message || 'Failed to create hearing');
       }
       router.push('/admin/hearings');
     } catch (err: any) {
