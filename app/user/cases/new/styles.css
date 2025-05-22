@@ -1,0 +1,29 @@
+/* Case filing form specific styles */
+
+/* Form elements */
+.case-filing-form label, 
+.case-filing-form h1, 
+.case-filing-form h2, 
+.case-filing-form h3, 
+.case-filing-form p {
+  color: black !important;
+  font-weight: 600 !important;
+}
+
+/* Form inputs */
+.case-filing-form input, 
+.case-filing-form textarea, 
+.case-filing-form select {
+  color: black !important;
+  background-color: white !important;
+  border: 1px solid #d1d5db !important;
+}
+
+/* Required field asterisks */
+.case-filing-form [required]:after,
+.case-filing-form .required:after,
+.case-filing-form span.text-red-500,
+.case-filing-form span.text-red-600,
+.case-filing-form span.text-red-700 {
+  color: #dc2626 !important;
+} 

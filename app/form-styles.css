@@ -1,0 +1,27 @@
+/* Form styling - scoped to specific pages */
+.file-case-form label,
+.file-case-form input,
+.file-case-form textarea,
+.file-case-form select,
+.file-case-form option {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+}
+
+/* More specific selectors for form elements */
+[id="title"],
+[id="caseType"],
+[id="description"],
+[id="plaintiffs"],
+[id="defendants"],
+[id="courtLocation"],
+[id="filingFee"] {
+  color: #000000 !important;
+  background-color: #f9fafb !important;
+}
+
+/* Only target form placeholders */
+.file-case-form ::placeholder {
+  color: #6b7280 !important;
+  opacity: 0.8 !important;
+} 

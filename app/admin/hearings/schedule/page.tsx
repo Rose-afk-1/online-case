@@ -1,0 +1,185 @@
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import FormInput from '@/components/ui/FormInput';
+import Spinner from '@/components/ui/Spinner';
+import { useEffect } from 'react';
+
+export default function ScheduleHearingPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+  const [cases, setCases] = useState<any[]>([]);
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
+  const [form, setForm] = useState({
+    caseId: '',
+    title: '',
+    description: '',
+    date: '',
+    time: '',
+    duration: '',
+    location: '',
+    status: 'scheduled',
+    notes: '',
+  });
+
+  useEffect(() => {
+    if (status === 'loading') return;
+    if (!session || session.user.role !== 'admin') {
+      router.push('/auth/login');
+      return;
+    }
+    fetchCases();
+  }, [session, status, router]);
+
+  const fetchCases = async () => {
+    try {
+      const response = await fetch('/api/cases');
+      const data = await response.json();
+      setCases(data.cases || []);
+    } catch (err) {
+      setCases([]);
+    }
+  };
+
+  const handleChange = (field: string, value: string) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    setError('');
+    try {
+      const response = await fetch('/api/hearings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...form,
+          duration: form.duration ? parseInt(form.duration) : undefined,
+        }),
+      });
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create hearing');
+      }
+      router.push('/admin/hearings');
+    } catch (err: any) {
+      setError(err.message);
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-lg mt-10">
+      <h1 className="text-2xl font-bold mb-6 text-gray-900">Schedule New Hearing</h1>
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">{error}</div>
+      )}
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <FormInput
+          label="Case"
+          type="select"
+          value={form.caseId}
+          onChange={(e) => handleChange('caseId', e.target.value)}
+          options={cases.map((c) => ({ value: c._id, label: `${c.caseNumber} - ${c.title}` }))}
+          required
+        />
+        <FormInput
+          label="Title"
+          type="text"
+          value={form.title}
+          onChange={(e) => handleChange('title', e.target.value)}
+          required
+          placeholder="Enter hearing title"
+        />
+        <FormInput
+          label="Description"
+          type="textarea"
+          value={form.description}
+          onChange={(e) => handleChange('description', e.target.value)}
+          rows={3}
+          placeholder="Enter hearing description"
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormInput
+            label="Date"
+            type="date"
+            value={form.date}
+            onChange={(e) => handleChange('date', e.target.value)}
+            required
+          />
+          <FormInput
+            label="Time"
+            type="time"
+            value={form.time}
+            onChange={(e) => handleChange('time', e.target.value)}
+            required
+          />
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormInput
+            label="Duration (minutes)"
+            type="number"
+            value={form.duration}
+            onChange={(e) => handleChange('duration', e.target.value)}
+            min={1}
+            required
+          />
+          <FormInput
+            label="Status"
+            type="select"
+            value={form.status}
+            onChange={(e) => handleChange('status', e.target.value)}
+            options={[
+              { value: 'scheduled', label: 'Scheduled' },
+              { value: 'completed', label: 'Completed' },
+              { value: 'canceled', label: 'Canceled' },
+              { value: 'postponed', label: 'Postponed' },
+            ]}
+            required
+          />
+        </div>
+        <FormInput
+          label="Location"
+          type="text"
+          value={form.location}
+          onChange={(e) => handleChange('location', e.target.value)}
+          required
+        />
+        <FormInput
+          label="Notes"
+          type="textarea"
+          value={form.notes}
+          onChange={(e) => handleChange('notes', e.target.value)}
+          rows={3}
+        />
+        <div className="flex justify-end space-x-3 pt-4">
+          <button
+            type="button"
+            onClick={() => router.push('/admin/hearings')}
+            className="px-4 py-2 border rounded-md text-gray-700 bg-white hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            Cancel
+          </button>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 flex items-center"
+            disabled={isSaving}
+          >
+            {isSaving ? (
+              <>
+                <Spinner size="sm" className="mr-2" />
+                Saving...
+              </>
+            ) : (
+              'Schedule Hearing'
+            )}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+} 

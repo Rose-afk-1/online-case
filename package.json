@@ -1,0 +1,49 @@
+{
+  "name": "temp-next-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@radix-ui/react-icons": "^1.3.2",
+    "@radix-ui/react-select": "^2.2.2",
+    "@radix-ui/react-slot": "^1.2.0",
+    "@radix-ui/react-tabs": "^1.1.9",
+    "bcryptjs": "^3.0.2",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "lucide-react": "^0.501.0",
+    "mongodb": "^6.16.0",
+    "mongoose": "^8.13.2",
+    "next": "15.2.4",
+    "next-auth": "^4.24.11",
+    "pdfkit": "^0.17.1",
+    "pdfkit-browserify": "^0.8.3-R2",
+    "razorpay": "^2.9.6",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-hot-toast": "^2.5.2",
+    "react-icons": "^5.5.0",
+    "tailwind-merge": "^3.2.0",
+    "tw-animate-css": "^1.2.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4",
+    "@types/date-fns": "^2.5.3",
+    "@types/node": "^20",
+    "@types/pdfkit": "^0.13.9",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "autoprefixer": "^10.4.21",
+    "dotenv": "^16.5.0",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.1.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5"
+  }
+}

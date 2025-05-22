@@ -1,0 +1,479 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  --radius: 0.625rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+/* Remove dark mode media query and force light mode */
+/* @media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+} */
+
+/* Basic styling - removed white background forcing */
+html, body {
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Form Input Styling */
+input, select, textarea {
+  color: inherit;
+  font-weight: 500;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: #3b82f6;
+}
+
+input::placeholder, textarea::placeholder {
+  color: #9ca3af;
+  opacity: 0.7;
+}
+
+/* Make select options readable */
+option {
+  color: black;
+}
+
+/* Style for inputs that have values */
+input:not([value=""]), 
+select:not([value=""]), 
+textarea:not(:placeholder-shown) {
+  border-color: #3b82f6;
+}
+
+/* Table content styling for better visibility */
+table tbody td {
+  font-weight: 500;
+}
+
+/* Ensure specific table content is always clearly visible */
+.case-number, .case-title, .hearing-title, 
+.hearing-date, .hearing-time, .hearing-location {
+  font-weight: 500;
+}
+
+/* Use white text for all buttons with colored backgrounds */
+[class*="bg-blue"] button, 
+.bg-blue-600, 
+.bg-blue-700,
+button.bg-blue-600, 
+button.bg-blue-700,
+.text-white {
+  color: #ffffff !important;
+}
+
+/* Target date inputs */
+input[type="date"],
+.date-input,
+input[type="datetime-local"] {
+  border: 1px solid #cccccc;
+}
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.205 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.205 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.922 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(1 0 0 / 10%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.556 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(1 0 0 / 10%);
+  --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  
+  /* Remove any white backgrounds and allow transparency */
+  html, body {
+    background-color: transparent !important;
+    color: white;
+  }
+  
+  /* Remove white background from all main containers */
+  #__next, main, .container {
+    background-color: transparent !important;
+  }
+  
+  /* Ensure text is visible against background */
+  h1, h2, h3, p, label, a {
+    color: white;
+  }
+  
+  /* Make sure the login container background shows through */
+  .login-container {
+    background-image: url('/lady-justice.jpg') !important;
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    background-color: black !important;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+  }
+  
+  /* Style form inputs to match design */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea,
+  select {
+    background-color: #f1f5f9 !important; /* Light background */
+    border: 1px solid #cbd5e1 !important;
+    color: #1e293b !important; /* Dark text */
+    border-radius: 0.25rem !important;
+    padding: 0.75rem 1rem !important;
+  }
+  
+  /* Style placeholder text */
+  input::placeholder, 
+  textarea::placeholder {
+    color: #64748b !important; /* Medium gray */
+    opacity: 1 !important;
+  }
+  
+  /* Make sure select options remain readable */
+  option {
+    background-color: #f1f5f9;
+    color: #1e293b;
+  }
+  
+  /* Style for inputs that have values */
+  input:not([value=""]), 
+  select:not([value=""]), 
+  textarea:not(:placeholder-shown) {
+    border-color: #3b82f6 !important;
+  }
+  
+  /* Fix for text input in specific form fields */
+  .bg-white input, 
+  .bg-white textarea, 
+  .bg-white select,
+  form input,
+  form textarea,
+  form select {
+    color: #1e293b !important;
+    -webkit-text-fill-color: #1e293b !important;
+  }
+  
+  /* Emergency override for case filing form inputs */
+  body [id*="Brief"],
+  body [id*="case"],
+  body [id*="plaintiff"],
+  body [id*="defendant"],
+  body [id*="court"],
+  body input,
+  body textarea,
+  body select {
+    color: #1e293b !important;
+    caret-color: #1e293b !important;
+    -webkit-text-fill-color: #1e293b !important;
+    background-color: #f1f5f9 !important;
+    text-shadow: none !important;
+  }
+  
+  /* Fix autofill styling */
+  input:-webkit-autofill,
+  input:-webkit-autofill:hover, 
+  input:-webkit-autofill:focus,
+  textarea:-webkit-autofill,
+  textarea:-webkit-autofill:hover,
+  textarea:-webkit-autofill:focus,
+  select:-webkit-autofill,
+  select:-webkit-autofill:hover,
+  select:-webkit-autofill:focus {
+    -webkit-text-fill-color: #1e293b !important;
+    -webkit-box-shadow: 0 0 0px 1000px #f1f5f9 inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+  }
+  
+  /* Style buttons to match design */
+  button[type="submit"] {
+    background-color: #3b82f6 !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 0.25rem !important;
+    padding: 0.75rem !important;
+  }
+  
+  /* Make sure NextAuth components are transparent */
+  [class*="nextauth-"],
+  [id*="nextauth-"],
+  [class*="next-auth-"],
+  [id*="next-auth-"] {
+    background-color: transparent !important;
+    box-shadow: none !important;
+  }
+  
+  /* Target any elements with white background styles */
+  [style*="background-color: white"],
+  [style*="background-color: #fff"],
+  [style*="background-color:#fff"],
+  [style*="background: white"],
+  [style*="background:#fff"],
+  [style*="background: #fff"] {
+    background-color: transparent !important;
+  }
+}
+
+/* Custom Login Styles - Simple version */
+.login-container {
+  background-image: url('/lady-justice.jpg') !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-color: black !important;
+}
+
+/* NextAuth specific styling overrides */
+.login-container {
+  background-image: url(/lady-justice.jpg) !important;
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+  background-color: black !important;
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Target NextAuth containers */
+[data-nextauth-signin-page] > div,
+[data-nextauth-signin-page] form,
+[data-nextauth-signin-page] section,
+[data-nextauth-signin-page] div,
+.signin > div,
+.signin form,
+.signin section,
+.signin div {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+/* Style input fields for NextAuth */
+[data-nextauth-signin-page] input,
+.signin input {
+  background-color: rgba(30, 41, 59, 0.8) !important;
+  color: white !important;
+  border: 1px solid rgba(148, 163, 184, 0.5) !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 0.25rem !important;
+}
+
+/* Style buttons for NextAuth */
+[data-nextauth-signin-page] button,
+.signin button {
+  background-color: #3b82f6 !important;
+  color: white !important;
+  padding: 0.75rem 1rem !important;
+  border-radius: 0.25rem !important;
+  border: none !important;
+}
+
+/* Make text elements visible */
+[data-nextauth-signin-page] h1,
+[data-nextauth-signin-page] h2,
+[data-nextauth-signin-page] h3,
+[data-nextauth-signin-page] p,
+[data-nextauth-signin-page] label,
+[data-nextauth-signin-page] a,
+.signin h1,
+.signin h2,
+.signin h3,
+.signin p,
+.signin label,
+.signin a {
+  color: white !important;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.5) !important;
+}
+
+/* Remove specific white backgrounds and enforce transparent backgrounds */
+[class*="bg-white"],
+[style*="background-color: white"],
+[style*="background: white"] {
+  background-color: transparent !important;
+}
+
+/* Remove all shadows for flat design */
+* {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Ensure all elements with shadow classes have no shadow */
+[class*="shadow"],
+[class*="shadow-sm"],
+[class*="shadow-md"],
+[class*="shadow-lg"],
+[class*="shadow-xl"] {
+  box-shadow: none !important;
+}
+
+/* Flat design overrides */
+.flat-design {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Apply flat design to the whole application */
+html, body, #__next, main, .app {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Replace shadow elements with borders for definition */
+.bg-white.shadow, 
+.bg-white.shadow-sm, 
+.bg-white.shadow-md, 
+.bg-white.shadow-lg, 
+.bg-white.shadow-xl,
+div[class*="shadow"], 
+div[class*="shadow-sm"], 
+div[class*="shadow-lg"], 
+div[class*="shadow-xl"] {
+  box-shadow: none !important;
+  border: 1px solid #e5e7eb !important;
+}
+
+/* Remove focus rings and replace with simple outlines */
+:focus {
+  box-shadow: none !important;
+  outline: 2px solid #3b82f6 !important;
+}
+
+/* Override any inline styles with !important */
+[style*="box-shadow"],
+[style*="text-shadow"] {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+/* Make form labels black */
+label, 
+form label,
+.form-label,
+[for="title"],
+[for="caseType"],
+[for="description"],
+[for="plaintiffs"],
+[for="defendants"],
+[for="courtLocation"],
+[for="filingFee"] {
+  color: #000000 !important;
+  -webkit-text-fill-color: #000000 !important;
+  text-shadow: none !important;
+  font-weight: 500 !important;
+}
+
+/* Override any label styling from elsewhere */
+body label,
+h1, h2, h3, p, label, a {
+  color: #000000 !important;
+}
