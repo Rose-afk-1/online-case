@@ -145,9 +145,9 @@ export default function NewCasePage() {
                 type="submit"
                 variant="primary"
                 className="flex-1"
-                isLoading={isLoading}
+                disabled={isLoading}
               >
-                Submit Case
+                {isLoading ? 'Submitting...' : 'Submit Case'}
               </Button>
               <Button
                 type="button"

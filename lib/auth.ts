@@ -49,7 +49,8 @@ export const authOptions: NextAuthOptions = {
           console.log("User found:", {
             id: user._id.toString(),
             email: user.email,
-            role: user.role
+            role: user.role,
+            isVerified: user.isVerified
           });
           
           // Check password
@@ -70,14 +71,16 @@ export const authOptions: NextAuthOptions = {
             id: user._id.toString(),
             name: user.name,
             email: user.email,
-            role: user.role
+            role: user.role,
+            isVerified: user.isVerified
           });
           
           return {
             id: user._id.toString(),
             name: user.name,
             email: user.email,
-            role: user.role
+            role: user.role,
+            isVerified: user.isVerified
           };
         } catch (error) {
           console.error('Authentication error:', error);
@@ -96,6 +99,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.id = user.id;
         token.role = user.role;
+        token.isVerified = user.isVerified;
       }
       return token;
     },
@@ -103,6 +107,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id as string;
         session.user.role = token.role as string;
+        session.user.isVerified = token.isVerified as boolean;
       }
       return session;
     }
@@ -128,6 +133,7 @@ declare module "next-auth" {
     role: string;
     name?: string | null;
     email?: string | null;
+    isVerified: boolean;
   }
 
   interface Session {
@@ -136,6 +142,7 @@ declare module "next-auth" {
       role: string;
       name?: string | null;
       email?: string | null;
+      isVerified: boolean;
     };
   }
 }
@@ -144,5 +151,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     id: string;
     role: string;
+    isVerified: boolean;
   }
 } 

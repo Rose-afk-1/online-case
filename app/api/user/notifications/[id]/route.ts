@@ -7,7 +7,7 @@ import { authOptions } from '@/lib/auth';
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -16,7 +16,8 @@ export async function DELETE(
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
     
-    const notificationId = params.id;
+    // Await the params promise to get the id
+    const { id: notificationId } = await context.params;
     
     // In a real application, you would delete the notification from your database
     // For now, we'll just return a success response

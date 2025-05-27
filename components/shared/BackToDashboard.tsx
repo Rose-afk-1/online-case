@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 
 type BackButtonProps = {
-  variant?: 'default' | 'outline' | 'ghost';
+  variant?: 'primary' | 'outline' | 'destructive';
   className?: string;
   label?: string;
   fallbackRoute?: string; 

@@ -35,8 +35,8 @@ export async function GET(req: NextRequest) {
     user.verificationTokenExpires = undefined;
     await user.save();
     
-    // Redirect to login page with success message
-    const redirectUrl = new URL('/auth/signin', process.env.NEXTAUTH_URL || 'http://localhost:3000');
+    // Redirect to home page with success message
+    const redirectUrl = new URL('/', process.env.NEXTAUTH_URL || 'http://localhost:3000');
     redirectUrl.searchParams.set('verified', 'true');
     
     return NextResponse.redirect(redirectUrl);

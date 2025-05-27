@@ -74,7 +74,7 @@ export async function POST(req: NextRequest) {
       caseId: new Types.ObjectId(caseId),
       userId: new Types.ObjectId(session.user.id),
       amount,
-      currency: 'USD',
+      currency: 'INR',
       paymentMethod,
       status: 'completed',
       description: `Filing fee for case ${caseData.caseNumber}`,

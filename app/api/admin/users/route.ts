@@ -22,58 +22,51 @@ export async function GET(req: NextRequest) {
     // Connect to database
     await dbConnect();
 
-    // Parse query parameters
+    // Get query parameters
     const url = new URL(req.url);
     const page = parseInt(url.searchParams.get('page') || '1');
     const limit = parseInt(url.searchParams.get('limit') || '10');
-    const role = url.searchParams.get('role');
-    const search = url.searchParams.get('search');
-    const sortField = url.searchParams.get('sort') || 'createdAt';
-    const sortOrder = url.searchParams.get('order') === 'asc' ? 1 : -1;
-
-    // Build filter
-    const filter: any = {};
+    const searchTerm = url.searchParams.get('search') || '';
+    const verifiedFilter = url.searchParams.get('verified');
     
-    // Filter by role if provided
-    if (role) {
-      filter.role = role;
-    }
-    
-    // Search by name or email
-    if (search) {
-      filter.$or = [
-        { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } }
-      ];
-    }
-
     // Calculate pagination
     const skip = (page - 1) * limit;
+    
+    // Build filter conditions
+    let filter: any = {};
+    
+    if (searchTerm) {
+      filter.$or = [
+        { name: { $regex: searchTerm, $options: 'i' } },
+        { email: { $regex: searchTerm, $options: 'i' } },
+      ];
+    }
+    
+    // Add verification filter if specified
+    if (verifiedFilter === 'true') {
+      filter.isVerified = true;
+    } else if (verifiedFilter === 'false') {
+      filter.isVerified = false;
+    }
 
-    // Create sort object
-    const sort: any = {};
-    sort[sortField] = sortOrder;
-
-    // Count total matching users
-    const total = await User.countDocuments(filter);
-
-    // Fetch users with pagination and sorting
+    // Get users with pagination
     const users = await User.find(filter)
-      .select('-password') // Exclude password field
-      .sort(sort)
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .lean();
-
-    // Return users with pagination metadata
+      .select('-password -verificationToken -verificationTokenExpires'); // Exclude sensitive fields
+    
+    // Get total count for pagination
+    const total = await User.countDocuments(filter);
+    
     return NextResponse.json({
       users,
       pagination: {
         total,
         page,
         limit,
-        pages: Math.ceil(total / limit)
-      }
+        pages: Math.ceil(total / limit),
+      },
     });
   } catch (error: any) {
     console.error('Error fetching users:', error);

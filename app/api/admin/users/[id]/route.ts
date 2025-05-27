@@ -8,7 +8,7 @@ import bcrypt from 'bcryptjs';
 // Get a specific user by ID
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -26,8 +26,11 @@ export async function GET(
     // Connect to database
     await dbConnect();
 
+    // Await the params promise to get the id
+    const { id } = await context.params;
+
     // Fetch user
-    const user = await User.findById(params.id).select('-password');
+    const user = await User.findById(id).select('-password');
     
     if (!user) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
@@ -46,7 +49,7 @@ export async function GET(
 // Update a user
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -67,9 +70,12 @@ export async function PATCH(
     // Parse request body
     const data = await req.json();
     
+    // Await the params promise to get the id
+    const { id } = await context.params;
+    
     // Prevent removing admin role from yourself
     if (
-      session.user.id === params.id && 
+      session.user.id === id && 
       data.role && 
       data.role !== 'admin' && 
       session.user.role === 'admin'
@@ -110,7 +116,7 @@ export async function PATCH(
 
     // Update user
     const updatedUser = await User.findByIdAndUpdate(
-      params.id,
+      id,
       updateData,
       { new: true }
     ).select('-password');
@@ -132,7 +138,7 @@ export async function PATCH(
 // Delete a user
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -147,8 +153,11 @@ export async function DELETE(
       return NextResponse.json({ error: 'Access denied' }, { status: 403 });
     }
 
+    // Await the params promise to get the id
+    const { id } = await context.params;
+
     // Prevent deleting your own account
-    if (session.user.id === params.id) {
+    if (session.user.id === id) {
       return NextResponse.json(
         { error: 'Cannot delete your own account' },
         { status: 400 }
@@ -159,7 +168,7 @@ export async function DELETE(
     await dbConnect();
 
     // Delete user
-    const deletedUser = await User.findByIdAndDelete(params.id);
+    const deletedUser = await User.findByIdAndDelete(id);
     
     if (!deletedUser) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });

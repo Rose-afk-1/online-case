@@ -1,19 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { signIn } from "next-auth/react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { FaGoogle, FaApple } from "react-icons/fa";
 import Link from "next/link";
 
-export default function Home() {
+function HomeContent() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [activeTab, setActiveTab] = useState("user"); // "user" or "admin"
   const [rememberMe, setRememberMe] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  // Check if user has just verified their email or registered
+  useEffect(() => {
+    const verified = searchParams.get('verified');
+    const registered = searchParams.get('registered');
+    
+    if (verified === 'true') {
+      setSuccess('Email verified successfully! You can now log in.');
+    } else if (registered === 'true') {
+      setSuccess('Registration successful! You can now log in.');
+    }
+  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,22 +39,24 @@ export default function Home() {
         redirect: false,
         email,
         password,
-        role: activeTab, // Pass the role based on the active tab
+        isAdmin: activeTab === "admin", // Pass the role based on the active tab
+        rememberMe: rememberMe,
       });
 
       if (result?.error) {
         setError(result.error);
-      } else {
-        // Redirect based on role
+        setIsLoading(false);
+      } else if (result?.ok) {
+        // Successful login - redirect based on role
         if (activeTab === "admin") {
           router.push("/admin/dashboard");
         } else {
           router.push("/user/dashboard");
         }
       }
-    } catch (error) {
-      setError("An error occurred during login. Please try again.");
-    } finally {
+    } catch (error: any) {
+      console.error("Login error:", error);
+      setError(error?.message || "An error occurred during login. Please try again.");
       setIsLoading(false);
     }
   };
@@ -108,6 +124,12 @@ export default function Home() {
         <h2 className="text-xl text-center text-white mb-6">
           Login to Your Account
         </h2>
+
+        {success && (
+          <div className="p-3 text-sm text-white bg-green-500 bg-opacity-80 rounded mb-4">
+            {success}
+          </div>
+        )}
 
         {error && (
           <div className="p-3 text-sm text-white bg-red-500 bg-opacity-80 rounded mb-4">
@@ -231,3 +253,15 @@ export default function Home() {
     </main>
   );
 }
+
+export default function Home() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: "#0033a0" }}>
+        <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-r-transparent align-[-0.125em] motion-reduce:animate-[spin_1.5s_linear_infinite] text-white" />
+      </div>
+    }>
+      <HomeContent />
+    </Suspense>
+  );
+} 

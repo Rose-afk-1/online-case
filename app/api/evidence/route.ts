@@ -179,6 +179,10 @@ export async function GET(req: NextRequest) {
     // Get query parameters
     const { searchParams } = new URL(req.url);
     const caseId = searchParams.get('caseId');
+    const isApproved = searchParams.get('isApproved');
+    const fileType = searchParams.get('fileType');
+    
+    console.log("Query filters:", { caseId, isApproved, fileType });
     
     // Build query
     const query: any = {};
@@ -191,6 +195,34 @@ export async function GET(req: NextRequest) {
         );
       }
       query.caseId = new Types.ObjectId(caseId);
+    }
+    
+    // Filter by approval status if provided
+    if (isApproved === 'true' || isApproved === 'false') {
+      query.isApproved = isApproved === 'true';
+    }
+    
+    // Filter by file type if provided
+    if (fileType) {
+      // For file types like image, document, etc.
+      if (fileType === 'image') {
+        query.fileType = { $regex: '^image/', $options: 'i' };
+      } else if (fileType === 'document') {
+        query.fileType = { 
+          $in: [
+            /^application\/vnd.openxmlformats-officedocument/,
+            /^application\/msword/,
+            'application/vnd.oasis.opendocument.text',
+            'text/plain'
+          ] 
+        };
+      } else if (fileType === 'pdf') {
+        query.fileType = 'application/pdf';
+      } else if (fileType === 'video') {
+        query.fileType = { $regex: '^video/', $options: 'i' };
+      } else if (fileType === 'audio') {
+        query.fileType = { $regex: '^audio/', $options: 'i' };
+      }
     }
     
     // Regular users can only see their own evidence or evidence for their cases
@@ -218,10 +250,15 @@ export async function GET(req: NextRequest) {
       }
     }
     
+    console.log("DB query:", JSON.stringify(query));
+    
     // Fetch evidence
     const evidence = await Evidence.find(query)
-      .sort({ uploadDate: -1 })
-      .select('_id title description fileUrl fileType fileSize uploadDate isApproved');
+      .populate('caseId', 'caseNumber title')
+      .populate('userId', 'name email')
+      .sort({ uploadDate: -1 });
+    
+    console.log(`Found ${evidence.length} evidence items matching query`);
     
     return NextResponse.json({ evidence });
   } catch (error: any) {

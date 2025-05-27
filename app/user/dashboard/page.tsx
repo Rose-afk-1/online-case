@@ -663,7 +663,7 @@ export default function UserDashboard() {
         {/* Quick Actions */}
         <div className="mb-8">
           <h2 className="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
             <Link href="/user/cases/file">
               <div className="p-6 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition duration-150">
                 <div className="flex flex-col items-center justify-center">
@@ -699,6 +699,18 @@ export default function UserDashboard() {
                   </svg>
                   <span className="text-lg font-medium text-gray-900">Check Hearings</span>
                   <p className="text-sm text-gray-500 mt-1">View scheduled hearings</p>
+                </div>
+              </div>
+            </Link>
+            
+            <Link href="/user/payment-history">
+              <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-6 hover:bg-gray-50 transition duration-200">
+                <div className="flex flex-col items-center text-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-3 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  <span className="text-lg font-medium text-gray-900">Payment History</span>
+                  <p className="text-sm text-gray-500 mt-1">View all transactions</p>
                 </div>
               </div>
             </Link>

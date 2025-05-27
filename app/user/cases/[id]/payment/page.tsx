@@ -18,10 +18,10 @@ interface CaseDetails {
   paymentStatus?: string;
 }
 
-export default function PaymentPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
+export default function PaymentPage({ params }: { params: Promise<{ id: string }> }) {
   const { data: session, status: authStatus } = useSession();
   const router = useRouter();
-  const caseId = 'then' in params ? React.use(params).id : params.id;
+  const { id: caseId } = React.use(params);
   
   const [caseDetails, setCaseDetails] = useState<CaseDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);

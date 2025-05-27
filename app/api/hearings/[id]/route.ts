@@ -4,6 +4,8 @@ import mongoose from 'mongoose';
 import { authOptions } from '@/lib/auth';
 import Hearing, { IHearing } from '@/models/Hearing';
 import Case from '@/models/Case';
+import User from '@/models/User';
+import { sendHearingNotificationEmail } from '@/lib/email';
 
 // Interface for populated case data
 interface PopulatedCase {
@@ -21,7 +23,7 @@ interface PopulatedHearing extends Omit<IHearing, 'caseId'> {
 // GET a specific hearing
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -35,7 +37,8 @@ export async function GET(
       await mongoose.connect(process.env.MONGODB_URI as string);
     }
 
-    const hearingId = params.id;
+    // Await the params promise to get the id
+    const { id: hearingId } = await context.params;
     const hearing = await Hearing.findById(hearingId)
       .populate('caseId', 'caseNumber title userId')
       .lean();
@@ -67,7 +70,7 @@ export async function GET(
 // PATCH - update a hearing
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -89,14 +92,19 @@ export async function PATCH(
       await mongoose.connect(process.env.MONGODB_URI as string);
     }
 
-    const hearingId = params.id;
+    // Await the params promise to get the id
+    const { id: hearingId } = await context.params;
     const data = await req.json();
 
-    // Find the hearing
-    const hearing = await Hearing.findById(hearingId);
+    // Find the hearing and populate case data for email
+    const hearing = await Hearing.findById(hearingId).populate('caseId', 'caseNumber title userId');
     if (!hearing) {
       return NextResponse.json({ error: 'Hearing not found' }, { status: 404 });
     }
+
+    // Store original values for email notification
+    const originalStatus = hearing.status;
+    const originalDate = new Date(hearing.date);
 
     // If changing the case, verify the new case exists
     if (data.caseId && data.caseId !== hearing.caseId.toString()) {
@@ -114,6 +122,76 @@ export async function PATCH(
     });
 
     await hearing.save();
+    
+    // Check if we need to send an email notification
+    const statusChanged = data.status && originalStatus !== data.status;
+    const dateChanged = data.date && new Date(data.date).getTime() !== originalDate.getTime();
+    
+    if (statusChanged || dateChanged) {
+      try {
+        // Get case and user data for the email
+        const caseData = await Case.findById(hearing.caseId);
+        const user = await User.findById(caseData?.userId);
+        
+        if (user && caseData) {
+          // Determine notification type
+          let notificationType: 'scheduled' | 'postponed' | 'closed' | 'completed' | 'cancelled';
+          
+          // First check if date changed - this takes precedence over status
+          if (dateChanged && hearing.status !== 'cancelled') {
+            notificationType = 'postponed';
+            console.log("Sending postponed notification due to date change");
+          } 
+          // Then check the current status
+          else if (hearing.status === 'scheduled') {
+            notificationType = 'scheduled';
+            console.log("Sending scheduled notification");
+          } else if (hearing.status === 'postponed') {
+            notificationType = 'postponed';
+            console.log("Sending postponed notification");
+          } else if (hearing.status === 'completed') {
+            notificationType = 'completed';
+            console.log("Sending completed notification");
+          } else if (hearing.status === 'cancelled') {
+            notificationType = 'cancelled';
+            console.log("Sending cancelled notification");
+          } else {
+            notificationType = 'closed';
+            console.log("Sending closed notification");
+          }
+          
+          console.log(`Preparing email data for hearing notification:
+- User Email: ${user.email}
+- User Name: ${user.name}
+- Case Number: ${caseData.caseNumber}
+- Case Title: ${caseData.title}
+- Hearing Date: ${new Date(hearing.date).toISOString()}
+- Hearing Time: ${hearing.time}
+- Hearing Location: ${hearing.location}
+- Notification Type: ${notificationType}
+- Previous Date (if any): ${originalDate ? originalDate.toISOString() : 'none'}
+- Notes/Reason: ${data.notes || hearing.notes || 'none'}`);
+          
+          await sendHearingNotificationEmail(
+            user.email,
+            user.name,
+            caseData.caseNumber,
+            caseData.title,
+            new Date(hearing.date),
+            hearing.time,
+            hearing.location,
+            notificationType,
+            notificationType === 'postponed' ? originalDate : undefined,
+            data.notes || hearing.notes
+          );
+          
+          console.log(`Hearing ${notificationType} notification sent to ${user.email}`);
+        }
+      } catch (emailError) {
+        console.error('Failed to send hearing update notification:', emailError);
+        // Continue with the response even if email fails
+      }
+    }
 
     return NextResponse.json(hearing);
   } catch (error: any) {
@@ -128,7 +206,7 @@ export async function PATCH(
 // DELETE - remove a hearing
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     // Check authentication
@@ -150,7 +228,8 @@ export async function DELETE(
       await mongoose.connect(process.env.MONGODB_URI as string);
     }
 
-    const hearingId = params.id;
+    // Await the params promise to get the id
+    const { id: hearingId } = await context.params;
     const hearing = await Hearing.findById(hearingId);
     
     if (!hearing) {

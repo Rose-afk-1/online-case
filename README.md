@@ -1,122 +1,293 @@
-# 🏛️ Online Case Filing and Tracking App
+# 🏛️ Online Case Filing and Tracking System
 
-This is a **full-stack web application** that allows users to **file and track court cases online**, and admins (court officials) to manage those cases. Built using **Next.js App Router**, **MongoDB**, **NextAuth.js**, **Tailwind CSS**, and **ShadCN UI**.
+A comprehensive **full-stack web application** for digital case management, allowing users to file and track legal cases online while providing court administrators with powerful case management tools. Built with **Next.js 15**, **MongoDB**, **NextAuth.js**, and modern web technologies.
 
----
-
-## 💡 What the App Does
-
-### 👥 For Users
-- Register and log in
-- File a legal case online
-- Upload evidence
-- Make payments
-- Track case status and hearing schedule
-
-### 🛡️ For Admins
-- Log in securely
-- Review and manage submitted cases
-- Update case status (approved, rejected, pending)
-- Manage hearing schedules
-- View uploaded evidence
-- Generate reports
+![Application Status](https://img.shields.io/badge/Status-Production%20Ready-success)
+![Next.js](https://img.shields.io/badge/Next.js-15.2.4-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
+![MongoDB](https://img.shields.io/badge/MongoDB-Latest-green)
 
 ---
 
-## 🧱 Tech Stack
+## ✨ Key Features
 
-- **Framework**: Next.js 13+ with App Router
-- **Database**: MongoDB
-- **Auth**: NextAuth.js
-- **UI**: Tailwind CSS + ShadCN UI
-- **State Management**: React/Next.js built-in state
-- **Routing**: File-based routing with app/
+### 👤 **User Portal**
+- 🔐 **Secure Authentication** - User registration, login, and email verification
+- 📋 **Case Filing** - Comprehensive case creation with automated filing fees
+- 📄 **Evidence Management** - Upload, organize, and track case evidence
+- 💳 **Payment Processing** - Integrated Razorpay payment gateway
+- 📊 **Payment History** - Complete transaction tracking and invoice downloads
+- 📅 **Hearing Management** - View scheduled hearings and updates
+- 🔔 **Notifications** - Real-time updates on case status
+- 👤 **Profile Management** - Update personal information and preferences
+
+### 🛡️ **Admin Portal**
+- 📊 **Dashboard Analytics** - Complete system overview and statistics
+- ⚖️ **Case Review** - Review, approve, or reject filed cases
+- 📅 **Hearing Scheduling** - Schedule and manage court hearings
+- 👥 **User Management** - Manage user accounts and verification
+- 📄 **Evidence Review** - Review and approve uploaded evidence
+- ⚙️ **System Settings** - Configure system parameters and fees
+- 📈 **Reporting** - Generate comprehensive system reports
+
+### 🔧 **Technical Features**
+- 🔒 **Role-based Access Control** - Secure route protection
+- 📧 **Email Notifications** - Automated email system with Brevo API
+- 💰 **Payment Integration** - Razorpay payment processing
+- 📱 **Responsive Design** - Mobile-first, modern UI
+- 🔄 **Real-time Updates** - Live status tracking
+- 🗃️ **File Management** - Secure file upload and storage
 
 ---
 
-## 🗂️ Folder Structure
+## 🧱 Technology Stack
+
+### **Frontend**
+- **Framework**: Next.js 15.2.4 with App Router
+- **Language**: TypeScript 5.0
+- **Styling**: Tailwind CSS
+- **UI Components**: ShadCN UI
+- **Icons**: React Icons
+- **State Management**: React Hooks & Context
+
+### **Backend**
+- **Runtime**: Node.js
+- **Database**: MongoDB with Mongoose ODM
+- **Authentication**: NextAuth.js 4.24.8
+- **File Storage**: Local file system with planned cloud integration
+- **Email Service**: Brevo API
+- **Payment Gateway**: Razorpay
+
+### **Development Tools**
+- **Package Manager**: npm
+- **Code Quality**: ESLint, TypeScript
+- **Development Server**: Next.js Dev Server with Hot Reload
+
+---
+
+## 🚀 Quick Start
+
+### **Prerequisites**
+- Node.js 18+ installed
+- MongoDB instance (local or cloud)
+- Brevo account for email services
+- Razorpay account for payments
+
+### **Installation**
+
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd online-case-filing
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Setup**
+   Create a `.env.local` file with the following variables:
+   ```env
+   # Database
+   MONGODB_URI=mongodb://localhost:27017/case-filing
+
+   # Authentication
+   NEXTAUTH_URL=http://localhost:3000
+   NEXTAUTH_SECRET=your-secret-key
+
+   # Email Service (Brevo)
+   BREVO_API_KEY=your-brevo-api-key
+   EMAIL_FROM=noreply@yourdomain.com
+
+   # Payment Gateway (Razorpay)
+   RAZORPAY_KEY_ID=your-razorpay-key-id
+   RAZORPAY_KEY_SECRET=your-razorpay-secret
+
+   # File Upload
+   UPLOAD_DIR=./uploads
+   MAX_FILE_SIZE=10485760
+
+   # Application
+   FILING_FEE_RATE=100
+   ```
+
+4. **Start the development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Access the application**
+   - User Portal: `http://localhost:3000`
+   - Admin Portal: `http://localhost:3000/admin`
+
+---
+
+## 📁 Project Structure
 
 ```
-app/
-├── (auth)/         → login and register pages
-├── (user)/         → user dashboard, cases, payments, evidence
-├── (admin)/        → admin dashboard, case review, hearings, reports
-├── api/            → API routes for auth, cases, payments, evidence, hearings
-components/
-├── ui/             → ShadCN components
-├── shared/         → components used by both user and admin
-├── user/           → user-specific components
-├── admin/          → admin-specific components
-models/
-├── User.ts         → User schema
-├── Case.ts         → Case schema
-├── Payment.ts      → Payment schema
-├── Evidence.ts     → Evidence schema
-├── Hearing.ts      → Hearing schema
-lib/
-├── auth.ts         → NextAuth config
-├── db.ts           → MongoDB connection
-middleware.ts       → Role-based access control
+online-case-filing/
+├── app/                          # Next.js App Router
+│   ├── (auth)/                  # Authentication pages
+│   │   ├── signin/
+│   │   ├── register/
+│   │   └── verify-email/
+│   ├── user/                    # User portal
+│   │   ├── dashboard/
+│   │   ├── cases/
+│   │   ├── evidence/
+│   │   ├── hearings/
+│   │   ├── payment-history/
+│   │   └── profile/
+│   ├── admin/                   # Admin portal
+│   │   ├── dashboard/
+│   │   ├── cases/
+│   │   ├── users/
+│   │   ├── hearings/
+│   │   └── settings/
+│   ├── api/                     # API routes
+│   │   ├── auth/
+│   │   ├── cases/
+│   │   ├── payment/
+│   │   ├── evidence/
+│   │   └── hearings/
+│   └── globals.css              # Global styles
+├── components/                   # Reusable components
+│   ├── ui/                      # ShadCN UI components
+│   ├── auth/                    # Authentication components
+│   ├── forms/                   # Form components
+│   └── layout/                  # Layout components
+├── lib/                         # Utility libraries
+│   ├── auth.ts                  # NextAuth configuration
+│   ├── db.ts                    # Database connection
+│   ├── email.ts                 # Email service
+│   └── utils.ts                 # Utility functions
+├── models/                      # Database schemas
+│   ├── User.ts
+│   ├── Case.ts
+│   ├── Payment.ts
+│   ├── Evidence.ts
+│   └── Hearing.ts
+├── types/                       # TypeScript definitions
+└── middleware.ts                # Route protection
 ```
 
 ---
 
-## 👮 Role-Based Access
+## 🔐 Authentication & Security
 
-- `middleware.ts` is used to protect routes
-- Users cannot access admin pages
-- Admins can access everything inside `(admin)/`
-- Session-based protection via `NextAuth.js`
+### **User Roles**
+- **User**: Can file cases, upload evidence, make payments, view hearings
+- **Admin**: Full system access including case management and user administration
 
----
+### **Security Features**
+- Password hashing with bcrypt
+- Email verification for new accounts
+- Role-based route protection
+- Secure file upload validation
+- Payment security with Razorpay integration
 
-## 🧠 Data Flow (Based on DFD)
-
-1. **User registers/logs in** → stored in `users` collection
-2. **User files case** → saved in `cases`
-3. **User uploads evidence** → saved in `evidence`
-4. **User makes payment** → recorded in `payments`
-5. **Admin reviews case and schedules hearings** → updates `hearings` collection
-6. **User tracks case progress from dashboard**
+### **Default Admin Account**
+Create an admin account through the `/auth/create-admin` route (development only)
 
 ---
 
-## 🧰 What Cursor AI Can Help With
+## 💳 Payment System
 
-Ask Cursor AI to:
-- Generate Mongoose models for `User`, `Case`, `Payment`, `Evidence`, `Hearing`
-- Create protected API routes using Next.js App Router
-- Build reusable UI components with ShadCN and Tailwind
-- Implement role-based middleware using `NextAuth`
-- Suggest folder/file structure and layout components
-- Handle form submissions, file uploads, and status updates
+### **Integrated Features**
+- **Filing Fee Calculation**: Automatic fee calculation based on case type
+- **Razorpay Integration**: Secure payment processing
+- **Payment History**: Complete transaction tracking
+- **Invoice Generation**: Downloadable payment receipts
+- **Payment Verification**: Server-side payment confirmation
+
+### **Supported Payment Methods**
+- Credit/Debit Cards
+- Net Banking
+- UPI
+- Digital Wallets
 
 ---
 
-## 📌 Notes
+## 📧 Email Notifications
 
-This project is part of a college academic submission. It is not deployed and runs locally. Only free tools and technologies are used.
-
-## Email Notifications Setup with SendGrid
-
-The application uses SendGrid for sending email notifications. Follow these steps to set up:
-
-1. Create a free SendGrid account at https://sendgrid.com/
-2. Create an API key in your SendGrid dashboard
-3. Add the API key to your `.env.local` file:
-
-```
-SENDGRID_API_KEY=your_sendgrid_api_key
-EMAIL_FROM=your_verified_sender_email@example.com
-```
-
-4. In SendGrid, verify your sender email address
-5. Update the `EMAIL_FROM` variable with your verified email address
-
-Types of emails the system will send:
-- Case creation confirmation
+### **Automated Emails**
+- Welcome emails for new users
+- Email verification
 - Case status updates
-- Evidence approval/rejection notifications
-- Hearing schedule notifications
+- Hearing notifications
+- Payment confirmations
 
-## Getting Started
+### **Email Templates**
+- Professional, responsive design
+- Branded with system identity
+- Dynamic content based on user actions
+
+---
+
+## 🗄️ Database Schema
+
+### **Collections**
+- **users**: User profiles and authentication data
+- **cases**: Filed cases with metadata
+- **payments**: Payment transactions and history
+- **evidence**: Uploaded case evidence
+- **hearings**: Scheduled court hearings
+- **notifications**: User notifications
+
+---
+
+## 🚀 Deployment
+
+### **Production Build**
+```bash
+npm run build
+npm start
+```
+
+### **Environment Considerations**
+- Ensure all environment variables are configured
+- Set up MongoDB with proper indexes
+- Configure email service for production
+- Set up payment gateway in live mode
+- Implement proper file storage solution
+
+---
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+---
+
+## 📄 License
+
+This project is part of an academic submission. All rights reserved.
+
+---
+
+## 🆘 Support
+
+For issues or questions:
+1. Check the existing issues
+2. Create a new issue with detailed description
+3. Include steps to reproduce any bugs
+
+---
+
+## 🎯 Recent Updates
+
+- ✅ **Payment History Feature**: Complete transaction tracking and invoice downloads
+- ✅ **Next.js 15 Compatibility**: Upgraded to latest Next.js with full compatibility
+- ✅ **Code Cleanup**: Removed all test files and unnecessary documentation
+- ✅ **Enhanced Security**: Improved authentication and route protection
+- ✅ **UI Improvements**: Modern, responsive design with better user experience
+
+---
+
+**Built with ❤️ for efficient legal case management**
+

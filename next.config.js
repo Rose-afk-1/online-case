@@ -4,10 +4,6 @@ const nextConfig = {
   experimental: {
     // Remove turbo config
   },
-  // Font optimization is now part of the main config
-  fontLoaders: {
-    optimizeFonts: false
-  },
   images: {
     domains: ['res.cloudinary.com'],
   },
@@ -21,6 +17,14 @@ const nextConfig = {
         path: false,
       };
     }
+    
+    // Reduce webpack cache warnings in development
+    if (config.mode === 'development') {
+      config.infrastructureLogging = {
+        level: 'error'
+      };
+    }
+    
     return config;
   },
 };

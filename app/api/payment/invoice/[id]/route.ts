@@ -10,10 +10,11 @@ import { generateInvoice } from '@/lib/invoiceGenerator';
 // Generate and serve an invoice for a payment
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
-    const paymentId = params.id;
+    // Await the params promise to get the id
+    const { id: paymentId } = await context.params;
     console.log('Invoice requested for payment:', paymentId);
 
     const session = await getServerSession(authOptions);

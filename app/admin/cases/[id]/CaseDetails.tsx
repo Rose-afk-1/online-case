@@ -497,7 +497,7 @@ export default function CaseDetails({ params }: CaseDetailsProps) {
                   }`}>
                     {caseData.paymentStatus.charAt(0).toUpperCase() + caseData.paymentStatus.slice(1)}
                   </span>
-                  <span className="ml-2">Filing Fee: ${caseData.filingFee}</span>
+                  <span className="ml-2">Filing Fee: ₹{caseData.filingFee}</span>
                 </dd>
               </div>
             </dl>

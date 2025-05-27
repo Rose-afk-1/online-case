@@ -7,11 +7,12 @@ import Hearing from '@/models/Hearing';
 import Evidence from '@/models/Evidence';
 import { Types } from 'mongoose';
 import User from '@/models/User';
+import { sendCaseStatusEmail } from '@/lib/email';
 
 // Get a specific case
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -32,9 +33,8 @@ export async function GET(
     
     await dbConnect();
     
-    // Get case ID from params - await the params properly
-    const paramsData = await params;
-    const caseId = paramsData.id;
+    // Await the params promise to get the id
+    const { id: caseId } = await context.params;
     console.log('Fetching case with ID:', caseId);
     
     // Validate case ID - more detailed error handling
@@ -125,7 +125,7 @@ export async function GET(
 // Update a case
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -137,7 +137,10 @@ export async function PATCH(
       );
     }
     
-    if (!Types.ObjectId.isValid(params.id)) {
+    // Await the params promise to get the id
+    const { id } = await context.params;
+    
+    if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
         { message: 'Invalid case ID' },
         { status: 400 }
@@ -149,7 +152,7 @@ export async function PATCH(
     const updates = await req.json();
     
     // Get the case before update
-    const existingCase = await Case.findById(params.id);
+    const existingCase = await Case.findById(id);
     
     if (!existingCase) {
       return NextResponse.json(
@@ -182,16 +185,36 @@ export async function PATCH(
     
     // Update the case
     const updatedCase = await Case.findByIdAndUpdate(
-      params.id,
+      id,
       { $set: updates },
       { new: true, runValidators: true }
     );
     
-
+    // Send email notification for status change
+    if (existingCase && updatedCase && updates.status && existingCase.status !== updates.status) {
+      try {
+        // Get user information
+        const user = await User.findById(existingCase.userId);
+        
+        if (user && user.email) {
+          await sendCaseStatusEmail(
+            user.email,
+            user.name || 'User',
+            updatedCase.caseNumber,
+            updatedCase.title,
+            updates.status
+          );
+          console.log(`Status update email sent to ${user.email}`);
+        }
+      } catch (emailError) {
+        console.error('Failed to send status update email:', emailError);
+        // Don't return an error, just log it, as the case was updated successfully
+      }
+    }
     
-    return NextResponse.json({ 
+    return NextResponse.json({
       message: 'Case updated successfully',
-      case: updatedCase 
+      case: updatedCase
     });
   } catch (error: any) {
     console.error('Error updating case:', error);
@@ -205,7 +228,7 @@ export async function PATCH(
 // Delete a case
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -219,9 +242,8 @@ export async function DELETE(
     
     await dbConnect();
     
-    // Use await to properly access params in Next.js 15+
-    const paramsData = await params;
-    const caseId = paramsData.id;
+    // Await the params promise to get the id
+    const { id: caseId } = await context.params;
     console.log('Processing case deletion request for ID:', caseId);
     
     // Validate case ID

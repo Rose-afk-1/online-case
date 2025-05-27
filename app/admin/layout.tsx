@@ -259,6 +259,32 @@ export default function AdminLayout({
             </li>
             <li>
               <Link
+                href="/admin/payments"
+                className={`flex items-center p-3 rounded-md ${
+                  isActivePath('/admin/payments')
+                    ? 'bg-blue-500 text-white'
+                    : 'hover:bg-blue-200 text-blue-800'
+                }`}
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  className="w-5 h-5"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"
+                  />
+                </svg>
+                {isSidebarOpen && <span className="ml-3">Payments</span>}
+              </Link>
+            </li>
+            <li>
+              <Link
                 href="/admin/settings"
                 className={`flex items-center p-3 rounded-md ${
                   isActivePath('/admin/settings')
@@ -308,6 +334,8 @@ export default function AdminLayout({
                   ? 'Hearing Schedule'
                   : pathname === '/admin/evidence'
                   ? 'Evidence Management'
+                  : pathname === '/admin/payments'
+                  ? 'Payment Management'
                   : pathname === '/admin/settings'
                   ? 'System Settings'
                   : 'Admin Panel'}
@@ -351,9 +379,12 @@ export default function AdminLayout({
                         Settings
                       </Link>
                       <button 
-                        onClick={() => signOut({ callbackUrl: '/' })}
                         className="w-full text-left block px-4 py-2 text-sm text-red-600 hover:bg-red-50"
                         role="menuitem"
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          router.push('/signout');
+                        }}
                       >
                         Sign out
                       </button>

@@ -24,10 +24,10 @@ type CaseDetails = {
   paymentStatus?: string;
 };
 
-export default function CaseEvidencePage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
+export default function CaseEvidencePage({ params }: { params: Promise<{ id: string }> }) {
   const { data: session, status: authStatus } = useSession();
   const router = useRouter();
-  const caseId = 'then' in params ? React.use(params).id : params.id;
+  const { id: caseId } = React.use(params);
   
   const [evidence, setEvidence] = useState<Evidence[]>([]);
   const [caseDetails, setCaseDetails] = useState<CaseDetails | null>(null);

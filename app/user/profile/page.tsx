@@ -210,7 +210,7 @@ export default function ProfilePage() {
   const handleSignOut = () => {
     console.log('Manually signing out user');
     // Most reliable approach - direct navigation to sign-out page
-    window.location.href = '/auth/signout';
+    window.location.href = '/signout';
   };
   
   const saveNotifications = async (e: React.FormEvent) => {

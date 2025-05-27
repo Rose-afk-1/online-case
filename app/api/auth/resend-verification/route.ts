@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import { generateVerificationToken, setTokenExpiration } from '@/lib/tokens';
+import { sendWelcomeEmail } from '@/lib/email';
 
 export async function POST(req: NextRequest) {
   try {
@@ -44,8 +45,23 @@ export async function POST(req: NextRequest) {
     user.verificationTokenExpires = verificationTokenExpires;
     await user.save();
     
+    // Send verification email
+    try {
+      await sendWelcomeEmail(
+        user.email,
+        user.name
+      );
+      console.log(`Verification email resent to ${user.email}`);
+    } catch (emailError) {
+      console.error('Failed to send verification email:', emailError);
+      return NextResponse.json(
+        { message: 'Error sending verification email' },
+        { status: 500 }
+      );
+    }
+    
     return NextResponse.json(
-      { message: 'Verification token has been updated' },
+      { message: 'Verification email has been sent' },
       { status: 200 }
     );
   } catch (error: any) {

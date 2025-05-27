@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { calculateFilingFee, getFilingFeeStructure, formatCurrency } from '@/lib/utils';
 
 // Case types for dropdown selection
 const CASE_TYPES = [
@@ -255,6 +256,22 @@ export default function CaseForm({ onSubmit }: CaseFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   
+  // Calculate filing fee whenever case type changes
+  useEffect(() => {
+    if (formData.caseType) {
+      const calculatedFee = calculateFilingFee(formData.caseType);
+      setFormData(prev => ({
+        ...prev,
+        filingFee: calculatedFee.toString()
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        filingFee: '0'
+      }));
+    }
+  }, [formData.caseType]);
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     
@@ -471,16 +488,31 @@ export default function CaseForm({ onSubmit }: CaseFormProps) {
             <label htmlFor="filingFee" className="block text-sm font-medium">
               Filing Fee (₹) <span className="text-red-500">*</span>
             </label>
-            <input
-              type="number"
-              id="filingFee"
-              name="filingFee"
-              value={formData.filingFee}
-              onChange={handleChange}
-              required
-              min="0"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            />
+            <div className="relative">
+              <input
+                type="text"
+                id="filingFee"
+                name="filingFee"
+                value={formatCurrency(parseInt(formData.filingFee) || 0)}
+                readOnly
+                className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 cursor-not-allowed text-gray-700 font-medium"
+              />
+              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                <span className="text-xs text-gray-500">Auto-calculated</span>
+              </div>
+            </div>
+            
+            {/* Fee Structure Information */}
+            <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <h4 className="text-xs font-semibold text-blue-800 mb-1">Filing Fee Structure:</h4>
+              <div className="text-xs text-blue-700 space-y-1">
+                <div>• <strong>₹1,000:</strong> Criminal, Commercial, Cybercrime cases</div>
+                <div>• <strong>₹500:</strong> Civil, Family, Constitutional & other cases</div>
+              </div>
+              <p className="text-xs text-blue-600 mt-1 italic">
+                Fee is automatically calculated based on your selected case type.
+              </p>
+            </div>
           </div>
         </div>
         

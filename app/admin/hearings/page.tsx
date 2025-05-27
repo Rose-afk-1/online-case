@@ -44,7 +44,6 @@ export default function HearingsManagement() {
   const [statusFilter, setStatusFilter] = useState('all');
   const [dateFilter, setDateFilter] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [currentHearing, setCurrentHearing] = useState<Partial<Hearing> | null>(null);
   const [isSaving, setIsSaving] = useState(false);
@@ -129,33 +128,6 @@ export default function HearingsManagement() {
     }
   };
 
-  const handleEditHearing = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!currentHearing || !currentHearing._id) return;
-    
-    try {
-      setIsSaving(true);
-      const response = await fetch(`/api/hearings/${currentHearing._id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(currentHearing),
-      });
-      
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to update hearing');
-      }
-      
-      await fetchHearings();
-      setShowEditModal(false);
-      setCurrentHearing(null);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setIsSaving(false);
-    }
-  };
-
   const handleDeleteHearing = async () => {
     if (!currentHearing || !currentHearing._id) return;
     
@@ -197,7 +169,7 @@ export default function HearingsManagement() {
     switch (status.toLowerCase()) {
       case 'scheduled': return 'bg-blue-100 text-blue-800';
       case 'completed': return 'bg-green-100 text-green-800';
-      case 'canceled': return 'bg-red-100 text-red-800';
+      case 'cancelled': return 'bg-red-100 text-red-800';
       case 'postponed': return 'bg-yellow-100 text-yellow-800';
       default: return 'bg-gray-100 text-gray-800';
     }
@@ -304,8 +276,7 @@ export default function HearingsManagement() {
                         <td className="py-4 px-4 space-x-2">
                           <button
                             onClick={() => {
-                              setCurrentHearing(hearing);
-                              setShowEditModal(true);
+                              router.push(`/admin/hearings/${hearing._id}/edit`);
                             }}
                             className="text-blue-600 hover:text-blue-800 font-medium"
                           >
@@ -403,7 +374,7 @@ export default function HearingsManagement() {
               options={[
                 { value: 'scheduled', label: 'Scheduled' },
                 { value: 'completed', label: 'Completed' },
-                { value: 'canceled', label: 'Canceled' },
+                { value: 'cancelled', label: 'Cancelled' },
                 { value: 'postponed', label: 'Postponed' }
               ]}
               required
@@ -446,128 +417,6 @@ export default function HearingsManagement() {
                 </>
               ) : (
                 'Schedule Hearing'
-              )}
-            </button>
-          </div>
-        </form>
-      </Modal>
-
-      {/* Edit Hearing Modal */}
-      <Modal
-        isOpen={showEditModal}
-        onClose={() => setShowEditModal(false)}
-        title="Edit Hearing"
-      >
-        <form onSubmit={handleEditHearing} className="space-y-4">
-          <FormInput
-            label="Case"
-            type="select"
-            value={typeof currentHearing?.caseId === 'object' ? currentHearing?.caseId._id : (currentHearing?.caseId as string || '')}
-            onChange={(e) => setCurrentHearing({ ...currentHearing, caseId: e.target.value })}
-            options={cases.map(caseItem => ({
-              value: caseItem._id,
-              label: `${caseItem.caseNumber} - ${caseItem.title}`
-            }))}
-            required
-          />
-
-          <FormInput
-            label="Title"
-            type="text"
-            value={currentHearing?.title || ''}
-            onChange={(e) => setCurrentHearing({...currentHearing, title: e.target.value})}
-            required
-            placeholder="Enter hearing title"
-          />
-
-          <FormInput
-            label="Description"
-            type="textarea"
-            value={currentHearing?.description || ''}
-            onChange={(e) => setCurrentHearing({...currentHearing, description: e.target.value})}
-            rows={3}
-            placeholder="Enter hearing description"
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormInput
-              label="Date"
-              type="date"
-              value={currentHearing?.date || ''}
-              onChange={(e) => setCurrentHearing({...currentHearing, date: e.target.value})}
-              required
-            />
-            
-            <FormInput
-              label="Time"
-              type="time"
-              value={currentHearing?.time || ''}
-              onChange={(e) => setCurrentHearing({...currentHearing, time: e.target.value})}
-              required
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <FormInput
-              label="Duration (minutes)"
-              type="number"
-              value={currentHearing?.duration || ''}
-              onChange={(e) => setCurrentHearing({...currentHearing, duration: parseInt(e.target.value)})}
-              min={1}
-              required
-            />
-            
-            <FormInput
-              label="Status"
-              type="select"
-              value={currentHearing?.status || 'scheduled'}
-              onChange={(e) => setCurrentHearing({...currentHearing, status: e.target.value})}
-              options={[
-                { value: 'scheduled', label: 'Scheduled' },
-                { value: 'completed', label: 'Completed' },
-                { value: 'canceled', label: 'Canceled' },
-                { value: 'postponed', label: 'Postponed' }
-              ]}
-              required
-            />
-          </div>
-
-          <FormInput
-            label="Location"
-            type="text"
-            value={currentHearing?.location || ''}
-            onChange={(e) => setCurrentHearing({...currentHearing, location: e.target.value})}
-            required
-          />
-
-          <FormInput
-            label="Notes"
-            type="textarea"
-            value={currentHearing?.notes || ''}
-            onChange={(e) => setCurrentHearing({...currentHearing, notes: e.target.value})}
-            rows={3}
-          />
-
-          <div className="flex justify-end space-x-3 pt-4">
-            <button
-              type="button"
-              onClick={() => setShowEditModal(false)}
-              className="px-4 py-2 border rounded-md text-gray-700 hover:bg-gray-50"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center"
-              disabled={isSaving}
-            >
-              {isSaving ? (
-                <>
-                  <Spinner size="sm" className="mr-2" />
-                  Saving...
-                </>
-              ) : (
-                'Update Hearing'
               )}
             </button>
           </div>

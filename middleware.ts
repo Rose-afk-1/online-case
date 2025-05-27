@@ -7,19 +7,18 @@ export async function middleware(request: NextRequest) {
   // Define protected routes
   const isAdminRoute = pathname.startsWith('/admin');
   const isUserRoute = pathname.startsWith('/user');
-  const isProtectedRoute = isAdminRoute || isUserRoute;
+  const isCasesRoute = pathname.startsWith('/cases');
+  const isProtectedRoute = isAdminRoute || isUserRoute || isCasesRoute;
   
   // Public routes that don't need auth checks
   const publicRoutes = [
     '/',
     '/auth/signin',
     '/auth/register',
-    '/auth/verify-email',
     '/auth/forgot-password',
     '/auth/reset-password',
     '/unauthorized',
-    '/api/auth/register',
-    '/api/auth/verify-email'
+    '/api/auth/register'
   ];
   
   // Skip middleware for public routes
@@ -35,7 +34,7 @@ export async function middleware(request: NextRequest) {
   
   // If accessing protected routes without being logged in, redirect to login
   if (isProtectedRoute && !token) {
-    return NextResponse.redirect(new URL('/', request.url));
+    return NextResponse.redirect(new URL('/auth/signin', request.url));
   }
   
   // Check for admin routes specifically
@@ -46,12 +45,6 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/unauthorized', request.url));
     }
   }
-  
-  // Check if email is verified for protected routes (if applicable)
-  if (isProtectedRoute && token && token.isVerified === false) {
-    // User is logged in but email not verified, redirect to verification reminder page
-    return NextResponse.redirect(new URL('/auth/verify-reminder', request.url));
-  }
 
   // Continue with the request if authorized
   return NextResponse.next();
@@ -60,7 +53,7 @@ export async function middleware(request: NextRequest) {
 // Configure which paths the middleware should run on
 export const config = {
   matcher: [
-    // Match all routes except for specific API routes
-    '/((?!api/auth/verify-email|_next/static|_next/image|favicon.ico).*)',
+    // Match all routes except for static assets
+    '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 }; 

@@ -283,7 +283,7 @@ export default function CasesPage() {
           {(caseType || caseStatus || paymentStatus) && (
             <div className="mt-4 flex justify-end">
               <Button 
-                variant="link" 
+                variant="outline" 
                 className="text-sm"
                 onClick={clearFilters}
               >

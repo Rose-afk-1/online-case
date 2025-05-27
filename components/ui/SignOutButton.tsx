@@ -6,7 +6,7 @@ interface SignOutButtonProps {
 
 export function SignOutButton({ className = '' }: SignOutButtonProps) {
   return (
-    <Link href="/auth/signout">
+    <Link href="/signout">
       <button
         className={`flex items-center px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-md hover:shadow-lg hover:scale-105 active:scale-95 transition-all duration-300 ${className}`}
       >

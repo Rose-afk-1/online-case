@@ -28,10 +28,21 @@ type DashboardStats = {
   cases?: {
     total: number;
     pending: number;
+    active: number;
   };
   hearings?: {
     total: number;
     upcoming: number;
+  };
+  evidence?: {
+    total: number;
+    pending: number;
+  };
+  payments?: {
+    total: number;
+    pending: number;
+    completed: number;
+    totalAmount: number;
   };
   timestamp?: Date;
 };
@@ -201,9 +212,7 @@ export default function AdminDashboard() {
                   <dl>
                     <dt className="text-sm font-medium text-gray-500 truncate">Active Cases</dt>
                     <dd className="text-2xl font-semibold text-gray-900">
-                      {(stats.cases?.total && stats.cases?.pending) 
-                        ? stats.cases.total - stats.cases.pending 
-                        : 0}
+                      {stats.cases?.active || 0}
                     </dd>
                   </dl>
                 </div>
@@ -228,9 +237,7 @@ export default function AdminDashboard() {
                   <dl>
                     <dt className="text-sm font-medium text-gray-500 truncate">Pending Evidence</dt>
                     <dd className="text-2xl font-semibold text-gray-900">
-                      {(stats.cases?.total && stats.cases?.pending) 
-                        ? stats.cases.total - stats.cases.pending 
-                        : 0}
+                      {stats.evidence?.pending || 0}
                     </dd>
                   </dl>
                 </div>
@@ -262,6 +269,29 @@ export default function AdminDashboard() {
             <div className="bg-gray-50 px-5 py-3">
               <Link href="/admin/hearings" className="text-sm text-blue-700 font-medium hover:text-blue-900">
                 View hearing calendar
+              </Link>
+            </div>
+          </div>
+          
+          <div className="bg-white overflow-hidden border border-gray-200 rounded-lg">
+            <div className="p-5">
+              <div className="flex items-center">
+                <div className="flex-shrink-0 bg-green-500 rounded-md p-3">
+                  <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                  </svg>
+                </div>
+                <div className="ml-5 w-0 flex-1">
+                  <dl>
+                    <dt className="text-sm font-medium text-gray-500 truncate">Total Payments</dt>
+                    <dd className="text-2xl font-semibold text-gray-900">{stats.payments?.total || 0}</dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+            <div className="bg-gray-50 px-5 py-3">
+              <Link href="/admin/payments" className="text-sm text-blue-700 font-medium hover:text-blue-900">
+                Manage payments
               </Link>
             </div>
           </div>
@@ -345,7 +375,7 @@ export default function AdminDashboard() {
           <div className="px-4 py-5 border-b border-gray-200 sm:px-6">
             <h3 className="text-lg font-medium text-gray-900">Quick Actions</h3>
           </div>
-          <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div className="border border-gray-200 rounded-lg p-5 hover:bg-gray-50">
               <h4 className="text-lg font-medium text-gray-900 mb-2">Schedule Hearing</h4>
               <p className="text-gray-500 mb-4">Schedule a new hearing for an existing case.</p>
@@ -366,6 +396,14 @@ export default function AdminDashboard() {
               <h4 className="text-lg font-medium text-gray-900 mb-2">Manage Users</h4>
               <p className="text-gray-500 mb-4">View and manage user accounts in the system.</p>
               <Link href="/admin/users">
+                <Button variant="primary" size="sm">Manage</Button>
+              </Link>
+            </div>
+            
+            <div className="border border-gray-200 rounded-lg p-5 hover:bg-gray-50">
+              <h4 className="text-lg font-medium text-gray-900 mb-2">Manage Payments</h4>
+              <p className="text-gray-500 mb-4">View and manage all user payments and transactions.</p>
+              <Link href="/admin/payments">
                 <Button variant="primary" size="sm">Manage</Button>
               </Link>
             </div>

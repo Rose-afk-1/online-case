@@ -117,14 +117,16 @@ export default function UserLayout({
                       >
                         Profile
                       </Link>
-                      <Link 
-                        href="/auth/signout" 
-                        className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50"
+                      <button 
+                        className="block px-4 py-2 text-sm text-red-600 hover:bg-red-50 w-full text-left"
                         role="menuitem"
-                        onClick={() => setDropdownOpen(false)}
+                        onClick={() => {
+                          setDropdownOpen(false);
+                          router.push('/signout');
+                        }}
                       >
                         Sign out
-                      </Link>
+                      </button>
                     </div>
                   </div>
                 )}

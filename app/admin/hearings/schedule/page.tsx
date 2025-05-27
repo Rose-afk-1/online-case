@@ -18,11 +18,16 @@ export default function ScheduleHearingPage() {
     description: '',
     date: '',
     time: '',
-    duration: '',
     location: '',
     status: 'scheduled',
     notes: '',
   });
+
+  // Create court room options
+  const courtRoomOptions = Array.from({ length: 20 }, (_, i) => ({
+    value: `High Court Room No.${i + 1}`,
+    label: `High Court Room No.${i + 1}`
+  }));
 
   useEffect(() => {
     if (status === 'loading') return;
@@ -80,7 +85,7 @@ export default function ScheduleHearingPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...form,
-          duration: form.duration ? parseInt(form.duration) : undefined,
+          duration: 60, // Set a default duration value
         }),
       });
       if (!response.ok) {
@@ -144,11 +149,11 @@ export default function ScheduleHearingPage() {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormInput
-            label="Duration (minutes)"
-            type="number"
-            value={form.duration}
-            onChange={(e) => handleChange('duration', e.target.value)}
-            min={1}
+            label="Location"
+            type="select"
+            value={form.location}
+            onChange={(e) => handleChange('location', e.target.value)}
+            options={courtRoomOptions}
             required
           />
           <FormInput
@@ -159,19 +164,12 @@ export default function ScheduleHearingPage() {
             options={[
               { value: 'scheduled', label: 'Scheduled' },
               { value: 'completed', label: 'Completed' },
-              { value: 'canceled', label: 'Canceled' },
+              { value: 'cancelled', label: 'Cancelled' },
               { value: 'postponed', label: 'Postponed' },
             ]}
             required
           />
         </div>
-        <FormInput
-          label="Location"
-          type="text"
-          value={form.location}
-          onChange={(e) => handleChange('location', e.target.value)}
-          required
-        />
         <FormInput
           label="Notes"
           type="textarea"

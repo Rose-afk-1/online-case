@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/db';
 import User from '@/models/User';
-import { generateVerificationToken, setTokenExpiration } from '@/lib/tokens';
+import { sendWelcomeEmail } from '@/lib/email';
+import { notifyAdminsOfNewUser } from '@/lib/admin';
 
 export async function POST(req: NextRequest) {
   try {
@@ -19,23 +20,42 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    // Generate verification token and expiry
-    const verificationToken = generateVerificationToken();
-    const verificationTokenExpires = setTokenExpiration(24); // 24 hours
-    
-    // Create new user (default role is 'user')
+    // Create new user (default role is 'user') - mark as verified by default
     const user = await User.create({
       name,
       email,
       password,
       phoneNumber,
       address,
-      isVerified: false,
-      verificationToken,
-      verificationTokenExpires
+      isVerified: true // Mark users as verified by default
     });
     
-    // Remove password and verification token from response
+    // Send welcome email without verification link
+    try {
+      await sendWelcomeEmail(
+        email,
+        name
+      );
+      console.log(`Welcome email sent to ${email}`);
+    } catch (emailError) {
+      console.error('Failed to send welcome email:', emailError);
+      // Don't return an error, just log it, as the user was created successfully
+    }
+    
+    // Notify admins about new user registration
+    try {
+      await notifyAdminsOfNewUser({
+        name,
+        email,
+        role: user.role,
+        createdAt: user.createdAt
+      });
+    } catch (notificationError) {
+      console.error('Failed to notify admins about new user:', notificationError);
+      // Don't return an error, just log it
+    }
+    
+    // Remove password from response
     const newUser = {
       id: user._id.toString(),
       name: user.name,
@@ -46,7 +66,7 @@ export async function POST(req: NextRequest) {
     
     return NextResponse.json(
       { 
-        message: 'User registered successfully. Please verify your account.',
+        message: 'User registered successfully.',
         user: newUser 
       },
       { status: 201 }

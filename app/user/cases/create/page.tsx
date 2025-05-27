@@ -290,10 +290,10 @@ export default function CreateCasePage() {
               <Button
                 type="submit"
                 variant="primary"
-                isLoading={isLoading}
+                disabled={isLoading}
                 className="w-full"
               >
-                Submit Case
+                {isLoading ? 'Submitting...' : 'Submit Case'}
               </Button>
             </div>
             

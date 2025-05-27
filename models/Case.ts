@@ -6,7 +6,7 @@ export interface ICase extends Document {
   description: string;
   userId: mongoose.Types.ObjectId;
   status: 'pending' | 'approved' | 'rejected' | 'inProgress' | 'completed' | 'closed';
-  caseType: 'civil' | 'criminal' | 'family' | 'other';
+  caseType: 'civil' | 'criminal' | 'family' | 'commercial' | 'cybercrime' | 'constitutional' | 'administrative' | 'tax' | 'consumer' | 'election' | 'special' | 'other';
   filingDate: Date;
   plaintiffs: string;
   defendants: string;
@@ -60,7 +60,7 @@ const CaseSchema: Schema = new Schema(
     },
     caseType: {
       type: String,
-      enum: ['civil', 'criminal', 'family', 'other'],
+      enum: ['civil', 'criminal', 'family', 'commercial', 'cybercrime', 'constitutional', 'administrative', 'tax', 'consumer', 'election', 'special', 'other'],
       required: [true, 'Please specify the case type'],
     },
     filingDate: {

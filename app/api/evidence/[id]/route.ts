@@ -8,11 +8,12 @@ import { Types } from 'mongoose';
 import { unlink } from 'fs/promises';
 import path from 'path';
 import User from '@/models/User';
+import { sendEvidenceStatusEmail } from '@/lib/email';
 
 // Get a single evidence item
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -26,7 +27,8 @@ export async function GET(
     
     await dbConnect();
     
-    const { id } = params;
+    // Await the params promise to get the id
+    const { id } = await context.params;
     
     if (!Types.ObjectId.isValid(id)) {
       return NextResponse.json(
@@ -73,7 +75,7 @@ export async function GET(
 // Update evidence (approve/reject)
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -93,20 +95,23 @@ export async function PATCH(
       );
     }
     
-    if (!Types.ObjectId.isValid(params.id)) {
+    await dbConnect();
+    
+    // Await the params promise to get the id
+    const { id: evidenceId } = await context.params;
+    
+    if (!Types.ObjectId.isValid(evidenceId)) {
       return NextResponse.json(
         { message: 'Invalid evidence ID' },
         { status: 400 }
       );
     }
     
-    await dbConnect();
-    
     // Get updates from request
     const updates = await req.json();
     
     // Get evidence first to check if it exists and for notifying user
-    const evidence = await Evidence.findById(params.id).populate('caseId');
+    const evidence = await Evidence.findById(evidenceId).populate('caseId');
     
     if (!evidence) {
       return NextResponse.json(
@@ -114,6 +119,9 @@ export async function PATCH(
         { status: 404 }
       );
     }
+    
+    // Get current status before update
+    const previousApprovalStatus = evidence.isApproved;
     
     // Only allow updates to isApproved, notes, and approval fields
     const allowedUpdates = ['isApproved', 'notes', 'tags'];
@@ -133,10 +141,41 @@ export async function PATCH(
     
     // Update the evidence
     const updatedEvidence = await Evidence.findByIdAndUpdate(
-      params.id,
+      evidenceId,
       { $set: filteredUpdates },
       { new: true }
-    );
+    )
+    .populate('caseId', 'caseNumber title')
+    .populate('userId', 'name email');
+    
+    // If approval status has changed, send email notification
+    if ('isApproved' in filteredUpdates && previousApprovalStatus !== filteredUpdates.isApproved) {
+      try {
+        // Get case data
+        const caseData = updatedEvidence.caseId;
+        
+        // Get user who submitted the evidence
+        const user = await User.findById(evidence.userId);
+        
+        if (user && caseData) {
+          // Send email notification
+          await sendEvidenceStatusEmail(
+            user.email,
+            user.name,
+            caseData.caseNumber,
+            caseData.title,
+            evidence.title,
+            filteredUpdates.isApproved ? 'approved' : 'rejected',
+            updates.notes // Include notes as rejection reason if provided
+          );
+          
+          console.log(`Evidence status notification sent to ${user.email}`);
+        }
+      } catch (emailError) {
+        console.error('Failed to send evidence status notification:', emailError);
+        // Continue with the response even if email fails
+      }
+    }
     
     return NextResponse.json({
       message: 'Evidence updated successfully',

@@ -77,9 +77,9 @@ export default function RegisterPage() {
       // Show success message
       setSuccess('Registration successful! Redirecting to login...');
       
-      // Redirect to dashboard after short delay
+      // Redirect to homepage after short delay
       setTimeout(() => {
-        router.push('/auth/signin');
+        router.push('/?registered=true');
       }, 2000);
       
     } catch (error: any) {

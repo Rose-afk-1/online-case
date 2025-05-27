@@ -6,6 +6,7 @@ import Hearing from '@/models/Hearing';
 import Case from '@/models/Case';
 import { Types } from 'mongoose';
 import User from '@/models/User';
+import { sendHearingNotificationEmail } from '@/lib/email';
 
 // GET all hearings with pagination, filtering, and search
 export async function GET(req: NextRequest) {
@@ -174,6 +175,32 @@ export async function POST(req: NextRequest) {
       notes,
       createdBy: new Types.ObjectId(session.user.id),
     });
+    
+    // Send email notification to the case owner
+    try {
+      // Get the user who owns the case
+      const user = await User.findById(caseData.userId);
+      
+      if (user) {
+        await sendHearingNotificationEmail(
+          user.email,
+          user.name,
+          caseData.caseNumber,
+          caseData.title,
+          new Date(date),
+          time,
+          location,
+          'scheduled',
+          undefined,
+          notes // Include notes as additional information
+        );
+        
+        console.log(`Hearing scheduled notification sent to ${user.email}`);
+      }
+    } catch (emailError) {
+      console.error('Failed to send hearing notification:', emailError);
+      // Continue with the response even if email fails
+    }
     
     return NextResponse.json(
       {

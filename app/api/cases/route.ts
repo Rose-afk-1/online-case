@@ -3,7 +3,10 @@ import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
 import dbConnect from '@/lib/db';
 import Case from '@/models/Case';
+import User from '@/models/User';
 import { Types } from 'mongoose';
+import { sendAdminNotificationEmail, sendCaseFilingConfirmationEmail } from '@/lib/email';
+import { calculateFilingFee } from '@/lib/utils';
 
 
 // Create a new case
@@ -61,13 +64,54 @@ export async function POST(req: NextRequest) {
       defendants,
       reliefSought,
       value: Number(value) || 0,
-      filingFee: Number(value) * 0.05 || 1000, // 5% of case value or minimum 1000
+      filingFee: calculateFilingFee(normalizedCaseType),
       status: 'pending',
       userId: new Types.ObjectId(session.user.id),
       filingDate: new Date(),
       caseType: normalizedCaseType,
       paymentStatus: 'unpaid' // Default to unpaid to require payment for evidence uploads
     });
+    
+    // Send email notifications after successful case creation
+    try {
+      // Send notification to admins about new case
+      const adminUsers = await User.find({ role: 'admin' }).select('email');
+      const adminEmails = adminUsers.map(admin => admin.email);
+      
+      if (adminEmails.length > 0) {
+        await sendAdminNotificationEmail(
+          adminEmails,
+          `New Case Filed: ${newCase.caseNumber}`,
+          'new_case',
+          {
+            caseNumber: newCase.caseNumber,
+            title: newCase.title,
+            userId: newCase._id,
+            filedBy: session.user.name || session.user.email,
+            filedAt: newCase.filingDate
+          }
+        );
+        console.log(`Admin notification sent for new case: ${newCase.caseNumber}`);
+      }
+      
+      // Send confirmation email to the user
+      const userData = await User.findById(session.user.id);
+      if (userData && userData.email) {
+        await sendCaseFilingConfirmationEmail(
+          userData.email,
+          userData.name || 'User',
+          newCase.caseNumber,
+          newCase.title,
+          newCase.filingDate,
+          newCase.filingFee
+        );
+        console.log(`Confirmation email sent to user: ${userData.email}`);
+      }
+      
+    } catch (emailError) {
+      console.error('Failed to send case filing notifications:', emailError);
+      // Don't fail the case creation if email fails
+    }
     
     return NextResponse.json(
       {

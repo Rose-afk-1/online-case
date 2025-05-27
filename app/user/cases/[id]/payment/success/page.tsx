@@ -8,13 +8,13 @@ import { Button } from '@/components/ui/button';
 import { FaCheckCircle, FaFileInvoice, FaArrowLeft } from 'react-icons/fa';
 import React from 'react';
 
-export default function PaymentSuccessPage({ params }: { params: Promise<{ id: string }> | { id: string } }) {
+export default function PaymentSuccessPage({ params }: { params: Promise<{ id: string }> }) {
   const { data: session, status: authStatus } = useSession();
   const router = useRouter();
   const searchParams = useSearchParams();
   
-  // Unwrap params safely whether it's a Promise or not
-  const caseId = 'then' in params ? React.use(params).id : params.id;
+  // Unwrap params safely
+  const { id: caseId } = React.use(params);
   const paymentId = searchParams.get('paymentId');
   const [paymentDetails, setPaymentDetails] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);

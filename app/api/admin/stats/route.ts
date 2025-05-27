@@ -6,6 +6,8 @@ import dbConnect from '@/lib/db';
 import User from '@/models/User';
 import Case from '@/models/Case';
 import Hearing from '@/models/Hearing';
+import Evidence from '@/models/Evidence';
+import Payment from '@/models/Payment';
 
 export async function GET(req: NextRequest) {
   try {
@@ -30,8 +32,15 @@ export async function GET(req: NextRequest) {
       newUsersThisWeek,
       totalCases,
       pendingCases,
+      activeCases,
       totalHearings,
       upcomingHearings,
+      totalEvidence,
+      pendingEvidence,
+      totalPayments,
+      completedPayments,
+      pendingPayments,
+      failedPayments,
     ] = await Promise.all([
       // Total users
       User.countDocuments({}),
@@ -47,6 +56,11 @@ export async function GET(req: NextRequest) {
       // Pending cases
       Case.countDocuments({ status: 'pending' }),
       
+      // Active cases (approved and inProgress)
+      Case.countDocuments({ 
+        status: { $in: ['approved', 'inProgress'] }
+      }),
+      
       // Total hearings
       Hearing.countDocuments({}),
       
@@ -54,7 +68,25 @@ export async function GET(req: NextRequest) {
       Hearing.countDocuments({ 
         date: { $gte: new Date() },
         status: { $in: ['scheduled', 'postponed'] }
-      })
+      }),
+      
+      // Total evidence
+      Evidence.countDocuments({}),
+      
+      // Pending evidence (not yet approved)
+      Evidence.countDocuments({ isApproved: false }),
+      
+      // Total payments
+      Payment.countDocuments({}),
+      
+      // Completed payments
+      Payment.countDocuments({ status: 'completed' }),
+      
+      // Pending payments
+      Payment.countDocuments({ status: 'pending' }),
+      
+      // Failed payments
+      Payment.countDocuments({ status: 'failed' })
     ]);
 
     // Return stats
@@ -65,11 +97,22 @@ export async function GET(req: NextRequest) {
       },
       cases: {
         total: totalCases,
-        pending: pendingCases
+        pending: pendingCases,
+        active: activeCases
       },
       hearings: {
         total: totalHearings,
         upcoming: upcomingHearings
+      },
+      evidence: {
+        total: totalEvidence,
+        pending: pendingEvidence
+      },
+      payments: {
+        total: totalPayments,
+        completed: completedPayments,
+        pending: pendingPayments,
+        failed: failedPayments
       },
       timestamp: new Date()
     });
